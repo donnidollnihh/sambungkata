@@ -21,6 +21,7 @@ export default function Game({ selectedLevel }: GameProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGameInitialized, setIsGameInitialized] = useState(false);
+  const [timersStarted, setTimersStarted] = useState(false);
   const { gameState, startGame, submitWord, useHint, resetGame, updateTotalTime, updateTotalTimeRemaining, setGameOver, isGameComplete, isGameTimeUp } = useGameState();
 
   const { time, isRunning, start, pause, reset, getProgress } = useTimer(
@@ -48,24 +49,27 @@ export default function Game({ selectedLevel }: GameProps) {
     if (!isGameInitialized) {
       startGame(selectedLevel);
       setIsGameInitialized(true);
+      setTimersStarted(false); // Reset timers started flag
     }
   }, [selectedLevel, isGameInitialized, startGame]);
 
   useEffect(() => {
-    if (isGameInitialized && selectedLevel.timeLimit > 0) {
+    if (isGameInitialized && !timersStarted) {
+      setTimersStarted(true);
+      
       setTimeout(() => {
-        reset(selectedLevel.timeLimit);
-        start();
-      }, 100); // Small delay to ensure game state is fully set
+        // Start per-word timer if needed
+        if (selectedLevel.timeLimit > 0) {
+          reset(selectedLevel.timeLimit);
+          start();
+        }
+        
+        // Start total timer
+        resetTotalTimer(selectedLevel.totalTimeLimit);
+        startTotalTimer();
+      }, 200); // Small delay to ensure game state is fully set
     }
-  }, [isGameInitialized, selectedLevel.timeLimit, reset, start]);
-
-  useEffect(() => {
-    if (isGameInitialized) {
-      resetTotalTimer(selectedLevel.totalTimeLimit);
-      startTotalTimer();
-    }
-  }, [isGameInitialized, selectedLevel.totalTimeLimit, resetTotalTimer, startTotalTimer]);
+  }, [isGameInitialized, timersStarted, selectedLevel.timeLimit, selectedLevel.totalTimeLimit, reset, start, resetTotalTimer, startTotalTimer]);
 
   useEffect(() => {
     updateTotalTimeRemaining(totalTimeRemaining);
@@ -243,6 +247,7 @@ export default function Game({ selectedLevel }: GameProps) {
   const handleRestart = () => {
     setIsPaused(false);
     setIsGameInitialized(false);
+    setTimersStarted(false);
     resetGame();
     setWordInput('');
     // Timer will be restarted by the useEffect when isGameInitialized changes
@@ -276,7 +281,7 @@ export default function Game({ selectedLevel }: GameProps) {
                 <p className="text-sm opacity-90">Waktu Total</p>
                 <p className="text-2xl font-bold">{formatTotalTime()}</p>
                 <p className="text-xs opacity-75">
-                  Total: {Math.floor(selectedLevel.totalTimeLimit / 60)}:{(selectedLevel.totalTimeLimit % 60).toString().padStart(2, '0')}
+                  Status: {totalTimerRunning ? 'Berjalan' : 'Berhenti'} | Sisa: {totalTimeRemaining}s
                 </p>
               </div>
               <div className="text-3xl">⏱️</div>
