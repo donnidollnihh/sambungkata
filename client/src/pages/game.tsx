@@ -35,12 +35,17 @@ export default function Game({ selectedLevel }: GameProps) {
     if (!isGameInitialized) {
       startGame(selectedLevel);
       setIsGameInitialized(true);
-      if (selectedLevel.timeLimit > 0) {
+    }
+  }, [selectedLevel, isGameInitialized, startGame]);
+
+  useEffect(() => {
+    if (isGameInitialized && selectedLevel.timeLimit > 0) {
+      setTimeout(() => {
         reset(selectedLevel.timeLimit);
         start();
-      }
+      }, 100); // Small delay to ensure game state is fully set
     }
-  }, [selectedLevel, isGameInitialized, startGame, reset, start]);
+  }, [isGameInitialized, selectedLevel.timeLimit, reset, start]);
 
   useEffect(() => {
     if (isGameComplete) {
@@ -208,10 +213,7 @@ export default function Game({ selectedLevel }: GameProps) {
     setIsGameInitialized(false);
     resetGame();
     setWordInput('');
-    if (selectedLevel.timeLimit > 0) {
-      reset(selectedLevel.timeLimit);
-      start();
-    }
+    // Timer will be restarted by the useEffect when isGameInitialized changes
   };
 
   const handleQuit = () => {
@@ -239,7 +241,10 @@ export default function Game({ selectedLevel }: GameProps) {
             <div className="flex items-center justify-between">
               <div className="text-white">
                 <p className="text-sm opacity-90">Waktu Tersisa</p>
-                <p className="text-2xl font-bold">{time}</p>
+                <p className="text-2xl font-bold">{time}s</p>
+                <p className="text-xs opacity-75">
+                  Status: {isRunning ? 'Berjalan' : 'Berhenti'} | Limit: {selectedLevel.timeLimit}s
+                </p>
               </div>
               <div className="text-3xl">⏰</div>
             </div>

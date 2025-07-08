@@ -12,7 +12,7 @@ export interface GameLevel {
 export const gameLevels: GameLevel[] = [
   {
     id: 1,
-    name: "Sangat Mudah",
+    name: "Very Easy",
     description: "20 soal • Tanpa batas waktu",
     questions: 20,
     timeLimit: 0,
@@ -22,7 +22,7 @@ export const gameLevels: GameLevel[] = [
   },
   {
     id: 2,
-    name: "Mudah",
+    name: "Easy", 
     description: "15 soal • 20 detik per kata",
     questions: 15,
     timeLimit: 20,
@@ -32,8 +32,8 @@ export const gameLevels: GameLevel[] = [
   },
   {
     id: 3,
-    name: "Sedang",
-    description: "10 soal • 15 detik per kata",
+    name: "Medium",
+    description: "10 soal • 15 detik per kata", 
     questions: 10,
     timeLimit: 15,
     icon: "🔥",
@@ -42,7 +42,7 @@ export const gameLevels: GameLevel[] = [
   },
   {
     id: 4,
-    name: "Sulit",
+    name: "Hard",
     description: "5 soal • 10 detik per kata",
     questions: 5,
     timeLimit: 10,

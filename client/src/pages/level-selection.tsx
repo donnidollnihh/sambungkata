@@ -21,7 +21,7 @@ export default function LevelSelection() {
         </div>
 
         <div className="space-y-4">
-          {gameLevels.map((level) => (
+          {gameLevels.sort((a, b) => a.id - b.id).map((level) => (
             <div
               key={level.id}
               onClick={() => handleLevelSelect(level.id)}
