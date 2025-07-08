@@ -31,11 +31,15 @@ export function useGameState() {
   const [gameState, setGameState] = useState<GameState>(initialState);
 
   const startGame = useCallback((level: GameLevel) => {
-    const startingLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    // Starting words for each game - these will be the first words shown
+    const startingWords = ['KUDA', 'BUKU', 'MATA', 'SAPI', 'NASI', 'AYAM', 'GULA', 'RAJA'];
+    const randomStartingWord = startingWords[Math.floor(Math.random() * startingWords.length)];
+    
     setGameState({
       ...initialState,
       level,
-      lastLetter: startingLetter.toLowerCase(),
+      lastLetter: randomStartingWord.charAt(randomStartingWord.length - 1).toLowerCase(),
+      usedWords: [randomStartingWord], // Add the starting word to used words
       hintsRemaining: level.hintsAllowed ? 3 : 0,
       gameStartTime: Date.now()
     });

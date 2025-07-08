@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface PauseModalProps {
@@ -13,12 +13,14 @@ export function PauseModal({ isOpen, onClose, onResume, onRestart, onQuit }: Pau
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-sm">
+        <DialogTitle className="text-2xl font-bold text-dark-gray text-center">
+          Permainan Dipause
+        </DialogTitle>
+        <DialogDescription className="text-medium-gray text-sm text-center">
+          Pilih tindakan Anda
+        </DialogDescription>
         <div className="text-center space-y-6">
           <div className="text-4xl mb-4">⏸️</div>
-          <div>
-            <h2 className="text-2xl font-bold text-dark-gray mb-2">Permainan Dipause</h2>
-            <p className="text-medium-gray text-sm">Pilih tindakan Anda</p>
-          </div>
           
           <div className="space-y-3">
             <Button 

@@ -19,6 +19,7 @@ export default function Game({ selectedLevel }: GameProps) {
   const [wordInput, setWordInput] = useState('');
   const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGameInitialized, setIsGameInitialized] = useState(false);
   const { gameState, startGame, submitWord, useHint, resetGame, updateTotalTime, isGameComplete } = useGameState();
 
   const { time, isRunning, start, pause, reset, getProgress } = useTimer(
@@ -31,12 +32,15 @@ export default function Game({ selectedLevel }: GameProps) {
   );
 
   useEffect(() => {
-    startGame(selectedLevel);
-    if (selectedLevel.timeLimit > 0) {
-      reset(selectedLevel.timeLimit);
-      start();
+    if (!isGameInitialized) {
+      startGame(selectedLevel);
+      setIsGameInitialized(true);
+      if (selectedLevel.timeLimit > 0) {
+        reset(selectedLevel.timeLimit);
+        start();
+      }
     }
-  }, [selectedLevel, startGame, reset, start]);
+  }, [selectedLevel, isGameInitialized, startGame, reset, start]);
 
   useEffect(() => {
     if (isGameComplete) {
@@ -201,8 +205,8 @@ export default function Game({ selectedLevel }: GameProps) {
 
   const handleRestart = () => {
     setIsPaused(false);
+    setIsGameInitialized(false);
     resetGame();
-    startGame(selectedLevel);
     setWordInput('');
     if (selectedLevel.timeLimit > 0) {
       reset(selectedLevel.timeLimit);
@@ -254,12 +258,28 @@ export default function Game({ selectedLevel }: GameProps) {
             <p className="text-medium-gray text-sm mb-2">
               Soal {gameState.currentQuestion} dari {gameState.level?.questions}
             </p>
-            <p className="text-dark-gray font-semibold mb-4">Kata terakhir berakhiran:</p>
-            <div className="gradient-coral-teal rounded-xl p-4 inline-block">
-              <span className="text-white font-bold text-3xl">
-                {gameState.lastLetter.toUpperCase()}
-              </span>
-            </div>
+            {gameState.currentQuestion === 1 ? (
+              <div>
+                <p className="text-dark-gray font-semibold mb-4">Kata pertama:</p>
+                <div className="gradient-coral-teal rounded-xl p-4 inline-block mb-2">
+                  <span className="text-white font-bold text-2xl">
+                    {gameState.usedWords[0] || 'MEMUAT...'}
+                  </span>
+                </div>
+                <p className="text-medium-gray text-sm">
+                  Masukkan kata yang dimulai dengan huruf "<strong>{gameState.lastLetter.toUpperCase()}</strong>"
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-dark-gray font-semibold mb-4">Kata terakhir berakhiran:</p>
+                <div className="gradient-coral-teal rounded-xl p-4 inline-block">
+                  <span className="text-white font-bold text-3xl">
+                    {gameState.lastLetter.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
