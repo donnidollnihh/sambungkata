@@ -70,9 +70,15 @@ export default function GameOver() {
     <div className="flex flex-col items-center justify-center min-h-screen p-6">
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-3xl font-bold text-dark-gray mb-2">Permainan Selesai!</h2>
-          <p className="text-medium-gray text-sm">Selamat, Anda telah menyelesaikan permainan</p>
+          <div className="text-6xl mb-4">
+            {gameState.isGameOver && gameState.gameOverReason.includes('Waktu') ? '⏰' : '🎉'}
+          </div>
+          <h2 className="text-3xl font-bold text-dark-gray mb-2">
+            {gameState.isGameOver && gameState.gameOverReason.includes('Waktu') ? 'Waktu Habis!' : 'Permainan Selesai!'}
+          </h2>
+          <p className="text-medium-gray text-sm">
+            {gameState.isGameOver && gameState.gameOverReason ? gameState.gameOverReason : 'Selamat, Anda telah menyelesaikan permainan'}
+          </p>
         </div>
 
         {/* Final Score Display */}

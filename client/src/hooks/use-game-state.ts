@@ -12,6 +12,9 @@ export interface GameState {
   hintsUsed: number;
   totalTime: number;
   gameStartTime: number;
+  totalTimeRemaining: number;
+  isGameOver: boolean;
+  gameOverReason: string;
 }
 
 const initialState: GameState = {
@@ -24,7 +27,10 @@ const initialState: GameState = {
   correctWords: 0,
   hintsUsed: 0,
   totalTime: 0,
-  gameStartTime: 0
+  gameStartTime: 0,
+  totalTimeRemaining: 0,
+  isGameOver: false,
+  gameOverReason: ''
 };
 
 export function useGameState() {
@@ -41,7 +47,10 @@ export function useGameState() {
       lastLetter: randomStartingWord.charAt(randomStartingWord.length - 1).toLowerCase(),
       usedWords: [randomStartingWord], // Add the starting word to used words
       hintsRemaining: level.hintsAllowed ? 3 : 0,
-      gameStartTime: Date.now()
+      gameStartTime: Date.now(),
+      totalTimeRemaining: level.totalTimeLimit,
+      isGameOver: false,
+      gameOverReason: ''
     });
   }, []);
 
@@ -75,7 +84,23 @@ export function useGameState() {
     }));
   }, []);
 
+  const updateTotalTimeRemaining = useCallback((timeRemaining: number) => {
+    setGameState(prev => ({
+      ...prev,
+      totalTimeRemaining: timeRemaining
+    }));
+  }, []);
+
+  const setGameOver = useCallback((reason: string) => {
+    setGameState(prev => ({
+      ...prev,
+      isGameOver: true,
+      gameOverReason: reason
+    }));
+  }, []);
+
   const isGameComplete = gameState.level ? gameState.currentQuestion > gameState.level.questions : false;
+  const isGameTimeUp = gameState.totalTimeRemaining <= 0;
 
   return {
     gameState,
@@ -84,6 +109,9 @@ export function useGameState() {
     useHint,
     resetGame,
     updateTotalTime,
-    isGameComplete
+    updateTotalTimeRemaining,
+    setGameOver,
+    isGameComplete,
+    isGameTimeUp
   };
 }

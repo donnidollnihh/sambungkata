@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGameState } from '@/hooks/use-game-state';
 import { useTimer } from '@/hooks/use-timer';
+import { useTotalTimer } from '@/hooks/use-total-timer';
 import { PauseModal } from '@/components/pause-modal';
 import { GameLevel } from '@/lib/game-utils';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +21,7 @@ export default function Game({ selectedLevel }: GameProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGameInitialized, setIsGameInitialized] = useState(false);
-  const { gameState, startGame, submitWord, useHint, resetGame, updateTotalTime, isGameComplete } = useGameState();
+  const { gameState, startGame, submitWord, useHint, resetGame, updateTotalTime, updateTotalTimeRemaining, setGameOver, isGameComplete, isGameTimeUp } = useGameState();
 
   const { time, isRunning, start, pause, reset, getProgress } = useTimer(
     selectedLevel.timeLimit,
@@ -30,6 +31,18 @@ export default function Game({ selectedLevel }: GameProps) {
       }
     }
   );
+
+  const {
+    timeRemaining: totalTimeRemaining,
+    isRunning: totalTimerRunning,
+    start: startTotalTimer,
+    pause: pauseTotalTimer,
+    reset: resetTotalTimer,
+    formatTime: formatTotalTime
+  } = useTotalTimer(selectedLevel.totalTimeLimit, () => {
+    setGameOver('Waktu total habis!');
+    setLocation('/game-over');
+  });
 
   useEffect(() => {
     if (!isGameInitialized) {
@@ -46,6 +59,23 @@ export default function Game({ selectedLevel }: GameProps) {
       }, 100); // Small delay to ensure game state is fully set
     }
   }, [isGameInitialized, selectedLevel.timeLimit, reset, start]);
+
+  useEffect(() => {
+    if (isGameInitialized) {
+      resetTotalTimer(selectedLevel.totalTimeLimit);
+      startTotalTimer();
+    }
+  }, [isGameInitialized, selectedLevel.totalTimeLimit, resetTotalTimer, startTotalTimer]);
+
+  useEffect(() => {
+    updateTotalTimeRemaining(totalTimeRemaining);
+  }, [totalTimeRemaining, updateTotalTimeRemaining]);
+
+  useEffect(() => {
+    if (gameState.isGameOver) {
+      setLocation('/game-over');
+    }
+  }, [gameState.isGameOver, setLocation]);
 
   useEffect(() => {
     if (isGameComplete) {
@@ -198,6 +228,7 @@ export default function Game({ selectedLevel }: GameProps) {
     if (selectedLevel.timeLimit > 0) {
       pause();
     }
+    pauseTotalTimer();
     setIsPaused(true);
   };
 
@@ -206,6 +237,7 @@ export default function Game({ selectedLevel }: GameProps) {
     if (selectedLevel.timeLimit > 0) {
       start();
     }
+    startTotalTimer();
   };
 
   const handleRestart = () => {
@@ -236,26 +268,43 @@ export default function Game({ selectedLevel }: GameProps) {
         </div>
 
         {/* Timer Display */}
-        {selectedLevel.timeLimit > 0 && (
-          <div className="gradient-coral-yellow rounded-xl p-4 mb-6">
+        <div className="space-y-4 mb-6">
+          {/* Total Game Timer */}
+          <div className="gradient-sky-purple rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div className="text-white">
-                <p className="text-sm opacity-90">Waktu Tersisa</p>
-                <p className="text-2xl font-bold">{time}s</p>
+                <p className="text-sm opacity-90">Waktu Total</p>
+                <p className="text-2xl font-bold">{formatTotalTime()}</p>
                 <p className="text-xs opacity-75">
-                  Status: {isRunning ? 'Berjalan' : 'Berhenti'} | Limit: {selectedLevel.timeLimit}s
+                  Total: {Math.floor(selectedLevel.totalTimeLimit / 60)}:{(selectedLevel.totalTimeLimit % 60).toString().padStart(2, '0')}
                 </p>
               </div>
-              <div className="text-3xl">⏰</div>
-            </div>
-            <div className="w-full bg-white bg-opacity-30 rounded-full h-2 mt-3">
-              <div 
-                className="bg-white h-2 rounded-full transition-all duration-1000"
-                style={{ width: `${getProgress()}%` }}
-              />
+              <div className="text-3xl">⏱️</div>
             </div>
           </div>
-        )}
+
+          {/* Per-Word Timer */}
+          {selectedLevel.timeLimit > 0 && (
+            <div className="gradient-coral-yellow rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-white">
+                  <p className="text-sm opacity-90">Waktu per Kata</p>
+                  <p className="text-2xl font-bold">{time}s</p>
+                  <p className="text-xs opacity-75">
+                    Status: {isRunning ? 'Berjalan' : 'Berhenti'} | Limit: {selectedLevel.timeLimit}s
+                  </p>
+                </div>
+                <div className="text-3xl">⏰</div>
+              </div>
+              <div className="w-full bg-white bg-opacity-30 rounded-full h-2 mt-3">
+                <div 
+                  className="bg-white h-2 rounded-full transition-all duration-1000"
+                  style={{ width: `${getProgress()}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Question Display */}
         <div className="bg-gray-50 rounded-xl p-6 mb-6">
@@ -297,7 +346,7 @@ export default function Game({ selectedLevel }: GameProps) {
             placeholder={`Masukkan kata yang dimulai dengan huruf ${gameState.lastLetter.toUpperCase()}...`}
             className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-coral focus:outline-none text-lg"
             onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-            disabled={isLoading}
+            disabled={isLoading || gameState.isGameOver}
           />
         </div>
 
@@ -305,15 +354,15 @@ export default function Game({ selectedLevel }: GameProps) {
         <div className="flex gap-3 mb-6">
           <Button 
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isLoading || gameState.isGameOver}
             className="flex-1 gradient-coral-teal text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
           >
-            {isLoading ? 'Memvalidasi...' : 'Kirim Kata'}
+            {isLoading ? 'Memvalidasi...' : gameState.isGameOver ? 'Permainan Selesai' : 'Kirim Kata'}
           </Button>
           {gameState.level?.hintsAllowed && (
             <Button 
               onClick={handleUseHint}
-              disabled={gameState.hintsRemaining <= 0}
+              disabled={gameState.hintsRemaining <= 0 || gameState.isGameOver}
               className="px-6 gradient-yellow-purple text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
             >
               💡 Hint ({gameState.hintsRemaining})
