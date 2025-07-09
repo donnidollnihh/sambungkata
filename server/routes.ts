@@ -3,6 +3,20 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertGameScoreSchema, insertGameSettingsSchema } from "@shared/schema";
 import { z } from "zod";
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load KBBI wordlist sekali saat server start
+const kbbiWords = new Set(
+  fs.readFileSync(path.join(__dirname, 'kbbi-wordlist.txt'), 'utf-8')
+    .split('\n')
+    .map(w => w.trim().toLowerCase())
+    .filter(Boolean)
+);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -74,19 +88,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!word || typeof word !== 'string') {
         return res.status(400).json({ error: "Word is required" });
       }
-      const firstLetter = word[0].toUpperCase();
-      const url = `https://cdn.jsdelivr.net/gh/Naandalist/kbbi-harvester@main/word-details/${firstLetter}/${word.toLowerCase()}.json`;
-      try {
-        const response = await fetch(url);
-        if (!response.ok) return res.json({ valid: false });
-        const data = await response.json();
-        if (data.lema && data.lema.toLowerCase() === word.toLowerCase()) {
-          return res.json({ valid: true });
-        }
-        return res.json({ valid: false });
-      } catch {
-        return res.json({ valid: false });
-      }
+      const isValid = kbbiWords.has(word.toLowerCase());
+      res.json({ valid: isValid });
     } catch (error) {
       res.status(500).json({ error: "Failed to validate word" });
     }
