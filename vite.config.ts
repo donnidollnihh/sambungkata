@@ -34,7 +34,7 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     proxy: {
-      '/api': 'https://smbungkta.netlify.app', // atau URL backend Anda
+      '/api': 'https://smbungkta.netlify.app/', // atau URL backend Anda
     }
   },
 });

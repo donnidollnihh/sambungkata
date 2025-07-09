@@ -163,7 +163,7 @@ export default function Game({ selectedLevel }: GameProps) {
 
     setIsLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/validate-word', { word });
+      const response = await apiRequest('POST', '/.netlify/functions/validate-word', { word });
       const { valid } = await response.json();
       if (valid) {
         const timeBonus = selectedLevel.timeLimit > 0 ? Math.max(0, time - 5) : 0;
