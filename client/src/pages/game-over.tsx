@@ -79,6 +79,9 @@ export default function GameOver() {
           <p className="text-medium-gray text-sm">
             {gameState.isGameOver && gameState.gameOverReason ? gameState.gameOverReason : 'Selamat, Anda telah menyelesaikan permainan'}
           </p>
+          <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+            <p className="text-blue-600 text-xs">📚 Berdasarkan KBBI (Kamus Besar Bahasa Indonesia)</p>
+          </div>
         </div>
 
         {/* Final Score Display */}

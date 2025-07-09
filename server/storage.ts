@@ -1,4 +1,5 @@
 import { users, gameScores, gameSettings, type User, type InsertUser, type GameScore, type InsertGameScore, type GameSettings, type InsertGameSettings } from "@shared/schema";
+import { kbbiWords } from '../client/src/lib/kbbi-words';
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -32,44 +33,8 @@ export class MemStorage implements IStorage {
     this.currentUserId = 1;
     this.currentScoreId = 1;
     this.currentSettingsId = 1;
-    
-    // Initialize Indonesian words dictionary
-    this.indonesianWords = new Set([
-      // Starting words
-      "kuda", "buku", "mata", "sapi", "nasi", "ayam", "gula", "raja",
-      
-      // Common words A-Z
-      "apel", "lampu", "udang", "gajah", "harimau", "ular", "rumah", "hijau", "ubi",
-      "ibu", "ubur", "ayam", "mobil", "langit", "tas", "sepatu", "ulat",
-      "telur", "roti", "ikan", "ice", "ember", "ringgit", "tikus", "semut",
-      "topi", "iring", "air", "radio", "otak", "kaki", "iklan", "nanas",
-      "sate", "ekor", "roda", "ada", "anak", "kucing", "guru", "uang", "gigi",
-      "intan", "nilai", "ide", "elang", "garam", "anjing", "gelas",
-      "indah", "hijab", "urut", "taman", "nyonya", "anggur",
-      "orangutan", "naga", "angsa", "api", "ikal", "lalat",
-      "singa", "abdi", "istana", "hati", "iblis", "salon", "noda",
-      "adik", "iman", "nuri", "lembu", "udara",
-      
-      // Words ending with common letters
-      "batu", "ubin", "nama", "ayat", "surat", "tangan", "angka", "awan", 
-      "nota", "abang", "genta", "atas", "sapu", "unta", "asam", "alat", 
-      "tali", "indra", "aroma", "alas", "silam", "mahkota", "akar", "rasa", 
-      "abai", "imbas", "suami", "istri", "nangka", "arus", "suku", "ukur", 
-      "ratu", "utara", "asap", "pagoda", "alam", "madu", "atur", "rumput", 
-      "tulang", "garis", "asli", "ilmu", "upah", "hilang", "gong", "obor", 
-      "ruas", "saraf", "fajr", "rabu", "ulama", "asrama", "april", "lari", 
-      "hutan", "nalar", "rusak", "kamu", "umur", "rata", "kulit", "tikar", 
-      "rambut", "tuah", "harga", "alur", "jalan", "nada",
-      
-      // Additional words for gameplay
-      "alam", "buah", "hewan", "nama", "angin", "nasib", "batu", "ular", 
-      "ratu", "ubi", "ibu", "bumi", "ikan", "nasi", "isi", "ilmu", 
-      "umur", "rasa", "asli", "lima", "awan", "naga", "angsa", "asap", 
-      "pantai", "indah", "hujan", "naik", "kaki", "ide", "ekor", "raja", 
-      "ayah", "hijau", "ujung", "gigi", "ikat", "tinggi", "ikan", "nilai", 
-      "iklan", "nama", "abang", "gula", "alat", "tangan", "nyonya", "anggur",
-      "rumah", "harimau", "utara", "asam", "mata", "angka", "asrama", "april"
-    ]);
+    // Gunakan dataset KBBI
+    this.indonesianWords = kbbiWords;
   }
 
   async getUser(id: number): Promise<User | undefined> {

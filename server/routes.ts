@@ -74,9 +74,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!word || typeof word !== 'string') {
         return res.status(400).json({ error: "Word is required" });
       }
-      
-      const isValid = await storage.validateWord(word);
-      res.json({ valid: isValid });
+      const firstLetter = word[0].toUpperCase();
+      const url = `https://cdn.jsdelivr.net/gh/Naandalist/kbbi-harvester@main/word-details/${firstLetter}/${word.toLowerCase()}.json`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return res.json({ valid: false });
+        const data = await response.json();
+        if (data.lema && data.lema.toLowerCase() === word.toLowerCase()) {
+          return res.json({ valid: true });
+        }
+        return res.json({ valid: false });
+      } catch {
+        return res.json({ valid: false });
+      }
     } catch (error) {
       res.status(500).json({ error: "Failed to validate word" });
     }

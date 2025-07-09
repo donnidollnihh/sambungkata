@@ -47,6 +47,9 @@ export default function HighScore() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-dark-gray mb-2">🏆 High Score</h2>
           <p className="text-medium-gray text-sm">Skor tertinggi Anda</p>
+          <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+            <p className="text-blue-600 text-xs">📚 Berdasarkan KBBI (Kamus Besar Bahasa Indonesia)</p>
+          </div>
         </div>
 
         {/* Score List */}

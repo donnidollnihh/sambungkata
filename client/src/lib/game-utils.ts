@@ -2,7 +2,7 @@ export interface GameLevel {
   id: number;
   name: string;
   description: string;
-  questions: number;
+  // questions: number; // Hapus jumlah soal
   timeLimit: number; // time per word in seconds
   totalTimeLimit: number; // total game time limit in seconds
   icon: string;
@@ -13,46 +13,22 @@ export interface GameLevel {
 export const gameLevels: GameLevel[] = [
   {
     id: 1,
-    name: "Very Easy",
-    description: "20 soal • 10 menit total",
-    questions: 20,
+    name: "Pemula",
+    description: "Waktu 4 menit (soal tak terbatas), waktu per kata 30 detik, hint aktif",
     timeLimit: 30, // 30 seconds per word
-    totalTimeLimit: 600, // 10 minutes total
+    totalTimeLimit: 240, // 4 minutes total
     icon: "🌟",
     gradient: "gradient-mint-teal",
     hintsAllowed: true
   },
   {
     id: 2,
-    name: "Easy", 
-    description: "15 soal • 6 menit total",
-    questions: 15,
+    name: "Menengah",
+    description: "Waktu 3 menit (soal tak terbatas), waktu per kata 20 detik, tanpa hint",
     timeLimit: 20, // 20 seconds per word
-    totalTimeLimit: 360, // 6 minutes total
+    totalTimeLimit: 180, // 3 minutes total
     icon: "⭐",
     gradient: "gradient-yellow-coral",
-    hintsAllowed: true
-  },
-  {
-    id: 3,
-    name: "Medium",
-    description: "10 soal • 3 menit total", 
-    questions: 10,
-    timeLimit: 15, // 15 seconds per word
-    totalTimeLimit: 180, // 3 minutes total
-    icon: "🔥",
-    gradient: "gradient-sky-purple",
-    hintsAllowed: false
-  },
-  {
-    id: 4,
-    name: "Hard",
-    description: "5 soal • 1 menit total",
-    questions: 5,
-    timeLimit: 10, // 10 seconds per word
-    totalTimeLimit: 60, // 1 minute total
-    icon: "💀",
-    gradient: "gradient-coral-gray",
     hintsAllowed: false
   }
 ];

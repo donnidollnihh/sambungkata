@@ -85,6 +85,9 @@ export default function Settings() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-dark-gray mb-2">⚙️ Pengaturan</h2>
           <p className="text-medium-gray text-sm">Sesuaikan pengalaman bermain</p>
+          <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+            <p className="text-blue-600 text-xs">📚 Menggunakan KBBI (Kamus Besar Bahasa Indonesia)</p>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -123,8 +126,8 @@ export default function Settings() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Sangat Mudah</SelectItem>
-                    <SelectItem value="2">Mudah</SelectItem>
+                    <SelectItem value="1">Pemula</SelectItem>
+                    <SelectItem value="2">Menengah</SelectItem>
                     <SelectItem value="3">Sedang</SelectItem>
                     <SelectItem value="4">Sulit</SelectItem>
                   </SelectContent>

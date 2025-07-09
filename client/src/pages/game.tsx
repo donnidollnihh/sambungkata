@@ -46,12 +46,10 @@ export default function Game({ selectedLevel }: GameProps) {
   });
 
   useEffect(() => {
-    if (!isGameInitialized) {
-      startGame(selectedLevel);
-      setIsGameInitialized(true);
-      setTimersStarted(false); // Reset timers started flag
-    }
-  }, [selectedLevel, isGameInitialized, startGame]);
+    startGame(selectedLevel);
+    setIsGameInitialized(true);
+    setTimersStarted(false);
+  }, [selectedLevel.id, startGame]);
 
   useEffect(() => {
     if (isGameInitialized && !timersStarted) {
@@ -120,24 +118,38 @@ export default function Game({ selectedLevel }: GameProps) {
 
   const validateAndSubmitWord = async (word: string) => {
     if (!word.trim()) {
-      toast({
-        title: "Kata Kosong",
-        description: "Silakan masukkan kata yang valid.",
-        variant: "destructive",
-      });
+              toast({
+          title: "Kata Kosong",
+          description: "Silakan masukkan kata yang valid sesuai KBBI.",
+          variant: "destructive",
+        });
       return;
     }
 
-    const firstLetter = word.charAt(0).toLowerCase();
-    const expectedLetter = gameState.lastLetter.toLowerCase();
-    
-    if (firstLetter !== expectedLetter) {
-      toast({
-        title: "Kata Salah",
-        description: `Kata harus dimulai dengan huruf "${expectedLetter.toUpperCase()}"`,
-        variant: "destructive",
-      });
-      return;
+    if (gameState.level && gameState.level.id === 1) {
+      // Level 1: validasi kata harus dimulai dengan huruf terakhir dari kata sebelumnya
+      const firstLetter = word.charAt(0).toLowerCase();
+      const expectedLetter = gameState.lastLetter.toLowerCase();
+      if (firstLetter !== expectedLetter) {
+        toast({
+          title: "Kata Salah",
+          description: `Kata harus dimulai dengan huruf \"${expectedLetter.toUpperCase()}\"`,
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // Level lain: validasi huruf awal
+      const firstLetter = word.charAt(0).toLowerCase();
+      const expectedLetter = gameState.lastLetter.toLowerCase();
+      if (firstLetter !== expectedLetter) {
+        toast({
+          title: "Kata Salah",
+          description: `Kata harus dimulai dengan huruf \"${expectedLetter.toUpperCase()}\"`,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (gameState.usedWords.includes(word.toUpperCase())) {
@@ -153,17 +165,14 @@ export default function Game({ selectedLevel }: GameProps) {
     try {
       const response = await apiRequest('POST', '/api/validate-word', { word });
       const { valid } = await response.json();
-      
       if (valid) {
         const timeBonus = selectedLevel.timeLimit > 0 ? Math.max(0, time - 5) : 0;
         submitWord(word, timeBonus);
         setWordInput('');
-        
         if (selectedLevel.timeLimit > 0) {
           reset(selectedLevel.timeLimit);
           start();
         }
-        
         toast({
           title: "Kata Benar!",
           description: `+${10 + timeBonus} poin`,
@@ -171,7 +180,7 @@ export default function Game({ selectedLevel }: GameProps) {
       } else {
         toast({
           title: "Kata Tidak Valid",
-          description: "Kata tidak ditemukan dalam kamus bahasa Indonesia.",
+          description: "Kata tidak ditemukan dalam KBBI (Kamus Besar Bahasa Indonesia).",
           variant: "destructive",
         });
       }
@@ -265,6 +274,9 @@ export default function Game({ selectedLevel }: GameProps) {
           <div className="text-center">
             <p className="text-medium-gray text-sm">Level {gameState.level?.id}</p>
             <p className="text-dark-gray font-bold text-xl">{gameState.level?.name}</p>
+            <div className="mt-1 p-1 bg-blue-50 rounded">
+              <p className="text-blue-600 text-xs">📚 KBBI</p>
+            </div>
           </div>
           <div className="text-center">
             <p className="text-medium-gray text-sm">Skor</p>
@@ -315,7 +327,7 @@ export default function Game({ selectedLevel }: GameProps) {
         <div className="bg-gray-50 rounded-xl p-6 mb-6">
           <div className="text-center">
             <p className="text-medium-gray text-sm mb-2">
-              Soal {gameState.currentQuestion} dari {gameState.level?.questions}
+              Soal ke-{gameState.currentQuestion}
             </p>
             {gameState.currentQuestion === 1 ? (
               <div>
@@ -348,7 +360,7 @@ export default function Game({ selectedLevel }: GameProps) {
             type="text"
             value={wordInput}
             onChange={(e) => setWordInput(e.target.value)}
-            placeholder={`Masukkan kata yang dimulai dengan huruf ${gameState.lastLetter.toUpperCase()}...`}
+            placeholder={`Masukkan kata KBBI yang dimulai dengan huruf ${gameState.lastLetter.toUpperCase()}...`}
             className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-coral focus:outline-none text-lg"
             onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
             disabled={isLoading || gameState.isGameOver}
